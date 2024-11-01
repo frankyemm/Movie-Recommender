@@ -1,2 +1,7 @@
 /venv/
 credits.csv
+bfg-1.14.0.jar
+/refs/
+HEAD.txt
+description.txt
+packed-refs
