@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 import pandas as pd
+from joblib import load
 
 app = FastAPI()
 
 # Cargar el dataset
-movies_df = pd.read_csv('test.csv')
+movies_df = pd.read_parquet("movies_data.parquet")
+weighted_similarity = load("weighted_similarity.joblib")
 
 # Función auxiliar para procesar meses en español
 month_map = {
@@ -93,3 +95,40 @@ def get_director(nombre_director: str):
             "release_date": release_date
         })
     return {"message": f"El director {nombre_director} ha dirigido las siguientes películas:", "movies": director_info}
+
+@app.get("/recomendacion/title")
+def recomendacion(title, n_recommendations=5):
+    # Verificar si el título existe en la base de datos
+    if title not in movies_df['title'].values:
+        print("El título no se encuentra en la base de datos.")
+        return
+    
+    # Encontrar el índice de la película de interés
+    movie_index = movies_df[movies_df['title'] == title].index[0]
+    
+    # Obtener la colección de la película (si existe)
+    collection_name = movies_df.loc[movie_index, 'belongs_to_collection']
+    
+    # Obtener índices de películas similares
+    similarity_scores = list(enumerate(weighted_similarity[movie_index]))
+    similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+    similar_movies_indices = [i[0] for i in similarity_scores[1:n_recommendations + 10]]  # Obtener suficientes películas
+    
+    # Filtrar y priorizar recomendaciones
+    recommendations = movies_df.iloc[similar_movies_indices]
+    if pd.notna(collection_name):  # Si la película pertenece a una colección
+        # Películas de la misma colección primero
+        collection_movies = recommendations[recommendations['belongs_to_collection'] == collection_name]
+        # Luego las películas similares por géneros y ordenadas por popularidad y votos
+        other_movies = recommendations[recommendations['belongs_to_collection'] != collection_name]
+        other_movies = other_movies.sort_values(by=['popularity', 'vote_count'], ascending=False)
+        
+        # Combinar ambas listas
+        final_recommendations = pd.concat([collection_movies, other_movies]).head(n_recommendations)
+    else:
+        # Si no pertenece a una colección, solo ordenar por popularidad y votos
+        final_recommendations = recommendations.sort_values(by=['popularity', 'vote_count'], ascending=False).head(n_recommendations)
+    
+    print(f"Películas recomendadas para '{title}':")
+    for _, row in final_recommendations.iterrows():
+        print(f"{row['title']} - Géneros: {row['genres']}, Puntuación: {row['vote_average']}, Popularidad: {row['popularity']}, Reparto: {row['cast']}, Director: {row['crew']}")
