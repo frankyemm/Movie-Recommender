@@ -13,7 +13,7 @@ class MovieSys:
             "septiembre": 9, "octubre": 10, "noviembre": 11, "diciembre": 12
         }
 
-        # Función auxiliar para procesar días en español
+        # Función auxiliar para procesar días en español.
         day_map = {
             "lunes": 0, "martes": 1, "miércoles": 2, "jueves": 3,
             "viernes": 4, "sábado": 5, "domingo": 6
