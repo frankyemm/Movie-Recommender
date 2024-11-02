@@ -1,3 +1,1 @@
-*.csv filter=lfs diff=lfs merge=lfs -text
-weighted_similarity.joblib filter=lfs diff=lfs merge=lfs -text
 weighted_similarity.pkl filter=lfs diff=lfs merge=lfs -text
