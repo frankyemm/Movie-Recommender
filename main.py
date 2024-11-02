@@ -3,10 +3,10 @@ from models import MovieSys
 
 # Configuración del archivo y enlace de Google Drive
 movies_df_path = 'test.csv'
-similarity_url = 'https://drive.google.com/uc?id=1EnIBeOTFrwHthqvIzJDlwmFdyFxu6YFa'  # ID del archivo
+# similarity_url = 'https://drive.google.com/uc?id=1EnIBeOTFrwHthqvIzJDlwmFdyFxu6YFa'  # ID del archivo
 
 # Inicializar MovieSys
-movie_sys = MovieSys(movies_df_path, similarity_url)
+movie_sys = MovieSys(movies_df_path)
 
 # Crear instancia de FastAPI
 app = FastAPI()
@@ -39,6 +39,6 @@ def get_actor(nombre_actor: str):
 def get_director(nombre_director: str):
     return movie_sys.get_director(nombre_director)
 
-@app.get("/recomendacion/{title}")
-def recomendacion(title: str, n_recommendations: int = 5):
-    return movie_sys.recomendacion(title, n_recommendations)
+# @app.get("/recomendacion/{title}")
+# def recomendacion(title: str, n_recommendations: int = 5):
+#     return movie_sys.recomendacion(title, n_recommendations)

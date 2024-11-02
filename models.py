@@ -3,14 +3,14 @@ import joblib
 import gdown
 
 class MovieSys:
-    def __init__(self, movies_df_path: str, similarity_url: str):
+    def __init__(self, movies_df_path: str):
         # Cargar el DataFrame de películas
         self.movies_df = pd.read_csv(movies_df_path)
         
         # Descargar y cargar la matriz de similitud desde Google Drive
-        output = 'weighted_similarity.joblib'
-        gdown.download(similarity_url, output, quiet=False)
-        self.weighted_similarity = joblib.load(output)
+        #output = 'weighted_similarity.joblib'
+        #gdown.download(similarity_url, output, quiet=False)
+        #self.weighted_similarity = joblib.load(output)
         
         # Preprocesar columnas y mapas de meses y días
         self.movies_df['release_date'] = pd.to_datetime(self.movies_df['release_date'], errors='coerce')
@@ -88,23 +88,23 @@ class MovieSys:
             })
         return {"message": f"El director {nombre_director} ha dirigido las siguientes películas:", "movies": director_info}
 
-    def recomendacion(self, title, n_recommendations=5):
-        if title not in self.movies_df['title'].values:
-            return {"error": "El título no se encuentra en la base de datos."}
+    # def recomendacion(self, title, n_recommendations=5):
+    #     if title not in self.movies_df['title'].values:
+    #         return {"error": "El título no se encuentra en la base de datos."}
 
-        movie_index = self.movies_df[self.movies_df['title'] == title].index[0]
-        similarity_scores = list(enumerate(self.weighted_similarity[movie_index]))
-        similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
-        recommended_indices = [i[0] for i in similarity_scores[1:n_recommendations + 10]]
+    #     movie_index = self.movies_df[self.movies_df['title'] == title].index[0]
+    #     similarity_scores = list(enumerate(self.weighted_similarity[movie_index]))
+    #     similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+    #     recommended_indices = [i[0] for i in similarity_scores[1:n_recommendations + 10]]
         
-        recommendations = self.movies_df.iloc[recommended_indices]
-        collection_name = self.movies_df.loc[movie_index, 'belongs_to_collection']
-        if pd.notna(collection_name):
-            collection_movies = recommendations[recommendations['belongs_to_collection'] == collection_name]
-            other_movies = recommendations[recommendations['belongs_to_collection'] != collection_name]
-            other_movies = other_movies.sort_values(by=['popularity', 'vote_count'], ascending=False)
-            final_recommendations = pd.concat([collection_movies, other_movies]).head(n_recommendations)
-        else:
-            final_recommendations = recommendations.sort_values(by=['popularity', 'vote_count'], ascending=False).head(n_recommendations)
+    #     recommendations = self.movies_df.iloc[recommended_indices]
+    #     collection_name = self.movies_df.loc[movie_index, 'belongs_to_collection']
+    #     if pd.notna(collection_name):
+    #         collection_movies = recommendations[recommendations['belongs_to_collection'] == collection_name]
+    #         other_movies = recommendations[recommendations['belongs_to_collection'] != collection_name]
+    #         other_movies = other_movies.sort_values(by=['popularity', 'vote_count'], ascending=False)
+    #         final_recommendations = pd.concat([collection_movies, other_movies]).head(n_recommendations)
+    #     else:
+    #         final_recommendations = recommendations.sort_values(by=['popularity', 'vote_count'], ascending=False).head(n_recommendations)
         
-        return {"recommendations": final_recommendations[['title', 'genres', 'vote_average', 'popularity']].to_dict(orient="records")}
+    #     return {"recommendations": final_recommendations[['title', 'genres', 'vote_average', 'popularity']].to_dict(orient="records")}
