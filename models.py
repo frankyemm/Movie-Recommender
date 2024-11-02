@@ -5,7 +5,6 @@ class MovieSys:
     def __init__(self, movies_df_path: str, similarity_path: str):
         # Cargar el DataFrame de películas
         self.movies_df = pd.read_csv(movies_df_path)
-        
         self.weighted_similarity = pd.read_pickle(similarity_path)
         
         # Preprocesar columnas y mapas de meses y días
@@ -33,56 +32,6 @@ class MovieSys:
             return {"error": "Día inválido"}
         day_count = self.movies_df[self.movies_df['release_date'].dt.dayofweek == day_num].shape[0]
         return {"message": f"{day_count} cantidad de películas fueron estrenadas en los días {dia}"}
-
-    def score_titulo(self, titulo: str):
-        movie = self.movies_df[self.movies_df['title'].str.lower() == titulo.lower()]
-        if movie.empty:
-            return {"error": "Película no encontrada"}
-        title = movie.iloc[0]['title']
-        year = movie.iloc[0]['release_year']
-        score = movie.iloc[0]['popularity']
-        return {"message": f"La película {title} fue estrenada en el año {year} con un score/popularidad de {score}"}
-
-    def votos_titulo(self, titulo: str):
-        movie = self.movies_df[self.movies_df['title'].str.lower() == titulo.lower()]
-        if movie.empty:
-            return {"error": "Película no encontrada"}
-        vote_count = movie.iloc[0]['vote_count']
-        if vote_count < 2000:
-            return {"message": "La película no cumple con el mínimo de 2000 valoraciones"}
-        vote_average = movie.iloc[0]['vote_average']
-        title = movie.iloc[0]['title']
-        year = movie.iloc[0]['release_year']
-        return {"message": f"La película {title} fue estrenada en el año {year}. La misma cuenta con un total de {vote_count} valoraciones, con un promedio de {vote_average}"}
-
-    def get_actor(self, nombre_actor: str):
-        actor_movies = self.movies_df[self.movies_df['cast'].str.contains(nombre_actor, case=False, na=False)]
-        if actor_movies.empty:
-            return {"error": "Actor no encontrado"}
-        total_return = actor_movies['return'].sum()
-        movie_count = actor_movies.shape[0]
-        average_return = total_return / movie_count if movie_count > 0 else 0
-        return {"message": f"El actor {nombre_actor} ha participado de {movie_count} cantidad de filmaciones, el mismo ha conseguido un retorno de {total_return} con un promedio de {average_return} por filmación"}
-
-    def get_director(self, nombre_director: str):
-        director_movies = self.movies_df[self.movies_df['crew'].str.contains(nombre_director, case=False, na=False)]
-        if director_movies.empty:
-            return {"error": "Director no encontrado"}
-        director_info = []
-        for _, movie in director_movies.iterrows():
-            title = movie['title']
-            release_date = movie['release_date']
-            individual_return = movie['return']
-            budget = movie['budget']
-            revenue = movie['revenue']
-            director_info.append({
-                "title": title,
-                "release_date": release_date,
-                "individual_return": individual_return,
-                "budget": budget,
-                "revenue": revenue
-            })
-        return {"message": f"El director {nombre_director} ha dirigido las siguientes películas:", "movies": director_info}
 
     def recomendacion(self, title, n_recommendations=5):
         if title not in self.movies_df['title'].values:
