@@ -3,10 +3,10 @@ from models import MovieSys
 
 # Configuración del archivo y enlace de Google Drive
 movies_df_path = 'test.csv'
-# similarity_url = 'https://drive.google.com/uc?id=1EnIBeOTFrwHthqvIzJDlwmFdyFxu6YFa'  # ID del archivo
+similarity_path = "weighted_similarity.pkl"  # ID del archivo
 
 # Inicializar MovieSys
-movie_sys = MovieSys(movies_df_path)
+movie_sys = MovieSys(movies_df_path, similarity_path)
 
 # Crear instancia de FastAPI
 app = FastAPI()
