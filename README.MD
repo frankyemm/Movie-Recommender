@@ -74,6 +74,12 @@ El proyecto ha sido desplegado en Render.com, lo que permite consumir la API des
 ![alt text](src/pic2.png)
 ![alt text](src/pic3.png)
 
+## Resultados del Deployment
+![alt text](src/pic4.png)
+![alt text](src/pic5.png)
+![alt text](src/pic6.png)
+![alt text](src/pic7.png)
+
 ## Análisis Exploratorio de Datos (EDA)
 
 Antes de desarrollar el sistema de recomendación, se realizó un análisis exploratorio de datos (EDA) para identificar relaciones, patrones y posibles outliers. Entre las visualizaciones generadas, se incluyó una nube de palabras para observar la frecuencia de palabras en los títulos, lo cual resultó útil para el sistema de recomendación.
