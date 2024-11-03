@@ -113,27 +113,59 @@ class MovieSys:
         return {"message": f"El director {exact_director_name} ha dirigido las siguientes películas:", "movies": director_info}
 
     def recomendacion(self, title, n_recommendations=5):
-        
+        # Convertir el título ingresado a minúsculas
         title_lower = title.lower()
-        movie = self.movies_df[self.movies_df['title'].str.lower() == title.lower()]
-        title = movie.iloc[0]['title']
         
-        if title not in self.movies_df['title'].values:
+        # Verificar si el título existe en la base de datos, ignorando mayúsculas/minúsculas
+        if title_lower not in self.movies_df['title'].str.lower().values:
             return {"error": "El título no se encuentra en la base de datos."}
-
-        movie_index = self.movies_df[self.movies_df['title'] == title].index[0]
-        similarity_scores = list(enumerate(self.weighted_similarity[movie_index]))
-        similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
-        recommended_indices = [i[0] for i in similarity_scores[1:n_recommendations + 10]]
         
-        recommendations = self.movies_df.iloc[recommended_indices]
+        # Obtener el índice de la película y el título original para mantener el formato correcto
+        movie = self.movies_df[self.movies_df['title'].str.lower() == title_lower]
+        title = movie.iloc[0]['title']
+        movie_index = movie.index[0]
+        movie_genres = movie.iloc[0]['genres']  # Obtener los géneros de la película dada
+        
+        # Verificar si el índice está dentro de los límites de la matriz de similitud
+        if movie_index >= len(self.weighted_similarity):
+            # Si el índice está fuera de rango, usar similitud de géneros
+            similar_movies = self.movies_df[self.movies_df['genres'].apply(lambda x: any(genre in x for genre in movie_genres))]
+            similar_movies = similar_movies[similar_movies.index != movie_index]  # Excluir la película original
+            similar_movies = similar_movies.sort_values(by=['popularity', 'vote_count'], ascending=False).head(n_recommendations)
+            
+            return {
+                "message": "Recomendaciones basadas en géneros similares:",
+                "recommendations": similar_movies[['title', 'genres', 'vote_average', 'popularity']].to_dict(orient="records")
+            }
+        
+        # Verificar si la película pertenece a una colección
         collection_name = self.movies_df.loc[movie_index, 'belongs_to_collection']
-        if pd.notna(collection_name):
-            collection_movies = recommendations[recommendations['belongs_to_collection'] == collection_name]
-            other_movies = recommendations[recommendations['belongs_to_collection'] != collection_name]
-            other_movies = other_movies.sort_values(by=['popularity', 'vote_count'], ascending=False)
-            final_recommendations = pd.concat([collection_movies, other_movies]).head(n_recommendations)
-        else:
-            final_recommendations = recommendations.sort_values(by=['popularity', 'vote_count'], ascending=False).head(n_recommendations)
+        collection_movies = pd.DataFrame()
         
-        return {"recommendations": final_recommendations[['title', 'genres', 'vote_average', 'popularity']].to_dict(orient="records")}
+        if pd.notna(collection_name):
+            # Si la película pertenece a una colección, obtener todas las películas de esa colección
+            collection_movies = self.movies_df[self.movies_df['belongs_to_collection'] == collection_name]
+            
+            # Remover la película original de la lista de la colección
+            collection_movies = collection_movies[collection_movies.index != movie_index]
+        
+        # Si ya tenemos suficientes recomendaciones en la colección, retornarlas directamente
+        if len(collection_movies) >= n_recommendations:
+            final_recommendations = collection_movies.head(n_recommendations)
+        else:
+            # Calcular las similitudes y obtener recomendaciones adicionales si faltan
+            similarity_scores = list(enumerate(self.weighted_similarity[movie_index]))
+            similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+            
+            # Obtener los índices de las películas recomendadas que no están en la misma colección
+            recommended_indices = [i[0] for i in similarity_scores[1:] if i[0] not in collection_movies.index][:n_recommendations - len(collection_movies)]
+            
+            # Obtener las películas adicionales de la similitud ponderada
+            additional_recommendations = self.movies_df.iloc[recommended_indices]
+            
+            # Concatenar las películas de la colección con las recomendaciones adicionales
+            final_recommendations = pd.concat([collection_movies, additional_recommendations]).head(n_recommendations)
+        
+        # Retornar las recomendaciones en el formato deseado
+        return {
+            "recommendations": final_recommendations[['title', 'genres', 'vote_average', 'popularity']].to_dict(orient="records")}
