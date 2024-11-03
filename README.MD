@@ -5,6 +5,7 @@ Este proyecto consiste en el desarrollo de un sistema de recomendación de pelí
 
 ## Estructura del Proyecto
 
+- **`Modelo.ipynb`**: Contiene todos los pasos del EDA y ETL.
 - **`models2.py`**: Contiene las funciones necesarias para realizar las consultas solicitadas por la API.
 - **`main.py`**: Incluye las definiciones de los endpoints de la API, implementados con decoradores para ser utilizados con FastAPI.
 - **`model.py`**: Almacena el modelo de recomendación original.
