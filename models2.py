@@ -61,30 +61,56 @@ class MovieSys:
         actor_movies = self.movies_df[self.movies_df['cast'].str.contains(nombre_actor, case=False, na=False)]
         if actor_movies.empty:
             return {"error": "Actor no encontrado"}
+        actor_names = actor_movies['cast'].apply(
+            lambda x: next((name for name in x.split(',') if nombre_actor.lower() in name.lower()), nombre_actor)
+        ).unique()
+        
+        # Convertimos el nombre exacto a una cadena, seleccionando el primer valor
+        exact_actor_name = str(actor_names[0]) if actor_names.size > 0 else nombre_actor
+        exact_actor_name = exact_actor_name.strip("'[]'")
         total_return = round(actor_movies['return'].sum(), 3)
         movie_count = actor_movies.shape[0]
         average_return = round(total_return / movie_count if movie_count > 0 else 0, 3)
-        return {"message": f"El actor {actor_movies} ha participado de {movie_count} cantidad de filmaciones, el mismo ha conseguido un retorno de {total_return} con un promedio de {average_return} por filmación"}
-
+        return {"message": f"El actor {exact_actor_name} ha participado de {movie_count} cantidad de filmaciones, el mismo ha conseguido un retorno de {total_return} con un promedio de {average_return} por filmación"}
+    
     def get_director(self, nombre_director: str):
+        # Filtramos las películas del director (sin distinguir mayúsculas y minúsculas)
         director_movies = self.movies_df[self.movies_df['crew'].str.contains(nombre_director, case=False, na=False)]
+        
+        # Si no hay películas encontradas, retornamos un error
         if director_movies.empty:
             return {"error": "Director no encontrado"}
+        
+        # Obtenemos el nombre exacto del director tal como está en el DataFrame
+        director_names = director_movies['crew'].apply(
+            lambda x: next((name for name in x.split(',') if nombre_director.lower() in name.lower()), nombre_director)
+        ).unique()
+        
+        # Convertimos el nombre exacto a una cadena, seleccionando el primer valor
+        exact_director_name = str(director_names[0]) if director_names.size > 0 else nombre_director
+        exact_director_name = exact_director_name.strip("'[]'")
+        # Recopilamos la información de las películas dirigidas por el director
         director_info = []
         for _, movie in director_movies.iterrows():
             title = movie['title']
             release_date = movie['release_date']
+            
+            # Convertimos la fecha a formato 'YYYY-MM-DD'
+            formatted_date = str(release_date)
+
             individual_return = movie['return']
             budget = movie['budget']
             revenue = movie['revenue']
             director_info.append({
                 "title": title,
-                "release_date": release_date,
+                "release_date": formatted_date[:10],
                 "individual_return": individual_return,
                 "budget": budget,
                 "revenue": revenue
-            })
-        return {"message": f"El director {nombre_director} ha dirigido las siguientes películas:", "movies": director_info}
+                })
+        
+        # Devolvemos el mensaje con el nombre exacto sin lista ni corchetes
+        return {"message": f"El director {exact_director_name} ha dirigido las siguientes películas:", "movies": director_info}
 
     def recomendacion(self, title, n_recommendations=5):
         if title not in self.movies_df['title'].values:
