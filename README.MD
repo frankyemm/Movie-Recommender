@@ -1,77 +1,87 @@
+
 # Sistema de Recomendación de Películas
 
-Este proyecto implementa un sistema de recomendación de películas utilizando técnicas de aprendizaje automático y procesamiento de texto, desplegado mediante FastAPI en [Render](https://render.com/). El sistema ofrece diferentes funciones, entre ellas la de recomendaciones personalizadas basadas en una matriz de similitud preentrenada.
-
-## Descripción del Problema
-
-El objetivo de este proyecto es crear un sistema de recomendación que permita a los usuarios obtener recomendaciones de películas similares a una seleccionada. Este tipo de sistema es útil para ofrecer recomendaciones personalizadas a usuarios de plataformas de streaming o aplicaciones de cine.
+Este proyecto consiste en el desarrollo de un sistema de recomendación de películas, que permite a los usuarios obtener recomendaciones basadas en una película específica, así como acceder a diversas consultas sobre películas, actores y directores. El proyecto incluye una API implementada con FastAPI y desplegada en Render.com, facilitando el consumo de los datos para diferentes departamentos de la organización, como Analytics y Machine Learning.
 
 ## Estructura del Proyecto
 
-- `models2.py`: Contiene las funciones principales para procesar y generar recomendaciones basadas en similitudes, de acuerdo con los requerimientos específicos del problema.
-- `main.py`: Define los endpoints de FastAPI y aplica los decoradores necesarios para el despliegue. Esta configuración facilita la interacción con el modelo desde una API.
-- `model.py`: Contiene el modelo original de recomendaciones y sus configuraciones iniciales.
-- `Modelo.ipynb`: Un Jupyter Notebook que documenta el proceso de desarrollo y ajuste del modelo, incluyendo análisis exploratorio y validaciones de desempeño.
-- `Datasets/test.csv`: dataset limpio utilizado para buscar las recomendaciones y demás información requerida por las funciones get.
-- `Datasets/sim.pkl`: Matriz de similitud serializada que se utiliza en el modelo para calcular recomendaciones basadas en contenido similar.
+- **`models2.py`**: Contiene las funciones necesarias para realizar las consultas solicitadas por la API.
+- **`main.py`**: Incluye las definiciones de los endpoints de la API, implementados con decoradores para ser utilizados con FastAPI.
+- **`model.py`**: Almacena el modelo de recomendación original.
+- **`sim.pkl`**: Una matriz de similitud serializada utilizada por el sistema de recomendación para calcular las recomendaciones de películas.
+- **Deployment**: La API ha sido desplegada en Render.com para facilitar el acceso web.
 
-## Configuración del Sistema de Recomendación
+## Preparación de Datos
 
-El sistema utiliza una matriz de similitud preentrenada (`sim.pkl`), ubicada en la carpeta `Datasets`, para calcular recomendaciones basadas en el contenido de las películas. Este archivo contiene una matriz serializada que representa la similitud entre películas, basada en características seleccionadas como género, sinopsis, actores y equipo de producción. 
-La matriz se generó a partir de la mitad de los datos de `test.csv` debido a que si se utiliza el total de los datos para realizar la matriz de similitud, esta matriz pesaría más de 1GB
+### Datasets Utilizados
 
-### Principales Funciones en `models2.py`
+El proyecto se basa en dos datasets:
+- `credits.csv`
+- `movies_dataset.csv`
 
-Las funciones de `models2.py` están diseñadas para satisfacer los requisitos del sistema de recomendación, tales como:
-- **Función de recomendación por similitud**: Utiliza la matriz de similitud para recomendar películas similares.
-- **Función de búsqueda de director**: Permite obtener información sobre las películas dirigidas por un director específico.
-- **Manejo de colecciones**: Recomienda películas de una colección si la película seleccionada pertenece a alguna, y complementa las recomendaciones con otras películas similares.
+### Transformaciones Realizadas
 
-### Configuración de `main.py` para FastAPI
+1. **Desanidado de Campos**: Algunos campos como `belongs_to_collection` y `production_companies` son diccionarios o listas anidadas. Estos campos se desanidan para facilitar las consultas en la API.
 
-`main.py` contiene los decoradores y configuraciones de FastAPI necesarios para desplegar el sistema de recomendación como una API. Los endpoints definidos permiten:
-- Realizar consultas de recomendaciones de películas.
-- Buscar información específica, como directores y detalles de películas.
-- Desplegar el modelo en un entorno de servidor con Render.com.
+2. **Manejo de Valores Nulos**:
+   - Los valores nulos en `revenue` y `budget` se reemplazan por 0.
+   - Los valores nulos en `release_date` se eliminan.
 
-## Despliegue
+3. **Formato de Fechas**: Las fechas se convierten al formato `AAAA-MM-DD`. Además, se crea una columna `release_year` para almacenar solo el año de lanzamiento.
 
-El sistema ha sido desplegado en [Render](https://render.com/), lo que permite acceder a la API desde cualquier lugar. La configuración en `main.py` está diseñada para facilitar el despliegue en un entorno de producción, garantizando que las rutas y funcionalidades estén disponibles a través de la web.
+4. **Cálculo del Retorno de Inversión**: Se añade una columna `return`, calculada como la división de `revenue` entre `budget`. En los casos en los que no se puede calcular, se asigna el valor 0.
 
-## Instalación y Ejecución Local
+5. **Eliminación de Columnas Irrelevantes**: Se eliminan las columnas `video`, `imdb_id`, `adult`, `original_title`, `poster_path`, y `homepage` para reducir la complejidad del dataset.
 
-Si deseas ejecutar el proyecto localmente, sigue los siguientes pasos:
+## Funcionalidades de la API
 
-1. **Clona el repositorio**:
-    ```bash
-    git clone https://github.com/tuusuario/Sistema-de-Recomendacion-de-Peliculas.git
-    cd Sistema-de-Recomendacion-de-Peliculas
-    ```
+La API, desarrollada con FastAPI, ofrece seis endpoints principales, además de un endpoint adicional para el sistema de recomendación.
 
-2. **Instala las dependencias**:
-    Se recomienda crear un entorno virtual y luego instalar las dependencias.
-    ```bash
-    python -m venv env
-    source env/bin/activate  # En Windows: env\Scripts\activate
-    pip install -r requirements.txt
-    ```
+### Endpoints Disponibles
 
-3. **Ejecución del servidor de FastAPI**:
-    ```bash
-    uvicorn main:app --reload
-    ```
+1. **`cantidad_filmaciones_mes(mes)`**
+   - Devuelve la cantidad de películas estrenadas en un mes específico (en español).
+   - **Ejemplo**: "X cantidad de películas fueron estrenadas en el mes de X".
 
-4. **Acceso a la API**:
-   Abre tu navegador o herramienta de consulta de API y navega a `http://127.0.0.1:8000` para ver la documentación generada automáticamente por FastAPI.
+2. **`cantidad_filmaciones_dia(dia)`**
+   - Devuelve la cantidad de películas estrenadas en un día específico de la semana (en español).
+   - **Ejemplo**: "X cantidad de películas fueron estrenadas en los días X".
 
-## Endpoints Disponibles
-- `GET /cantidad_filmaciones_mes/{mes}`: Devuelve la cantidad de películas que fueron estrenadas en el mes consultado en la totalidad del dataset.
-- `GET /cantidad_filmaciones_dia/{dia}`: Devuelve la cantidad de películas que fueron estrenadas en el día consultado en la totalidad del dataset.
-- `GET /score_titulo/{titulo}`: Devuelve el score que tiene la película
-- `GET /votos_titulo/{titulo}`: Retorna los votos que tiene la película si al menos tiene 2000 votos
-- `GET /get_actor/{nombre_actor}`: Se ingresa el nombre de un actor que se encuentre dentro de un dataset y devuelve el éxito del mismo medido a través del retorno. Además, la cantidad de películas en las que ha participado y el promedio de retorno.
-- `GET /director/{nombre_director}`: Retorna todas las películas dirigidas por el director indicado.
-- `GET /recomendacion/{titulo}`: Devuelve una lista de recomendaciones basadas en una película específica.
+3. **`score_titulo(titulo_de_la_filmación)`**
+   - Devuelve el título, año de estreno y score (popularidad) de una película específica.
+   - **Ejemplo**: "La película X fue estrenada en el año X con un score/popularidad de X".
+
+4. **`votos_titulo(titulo_de_la_filmación)`**
+   - Devuelve el título, cantidad de votos y promedio de votación de una película. Solo se devuelve si la película tiene al menos 2000 valoraciones; de lo contrario, se muestra un mensaje indicando que no cumple esta condición.
+   - **Ejemplo**: "La película X fue estrenada en el año X. La misma cuenta con un total de X valoraciones, con un promedio de X".
+
+5. **`get_actor(nombre_actor)`**
+   - Devuelve la cantidad de películas en las que ha participado un actor, el retorno total y el promedio de retorno por filmación.
+   - **Ejemplo**: "El actor X ha participado de X cantidad de filmaciones, consiguiendo un retorno de X con un promedio de X por filmación".
+
+6. **`get_director(nombre_director)`**
+   - Devuelve las películas dirigidas por un director, junto con la fecha de lanzamiento, retorno individual, costo y ganancia de cada película.
+   - **Ejemplo**: "El director X ha dirigido las siguientes películas: ...".
+
+7. **`recomendacion(titulo)`**
+   - Endpoint adicional que utiliza la matriz `sim.pkl` para recomendar películas similares basándose en el título ingresado. Devuelve una lista de las 5 películas con mayor similitud.
+
+## Deployment
+
+El proyecto ha sido desplegado en Render.com, lo que permite consumir la API desde la web de manera sencilla. Alternativamente, se podría desplegar en otros servicios como Railway, que ofrecen soporte para aplicaciones web y API.
+![alt text](src/pic1.png)
+![alt text](src/pic2.png)
+![alt text](src/pic3.png)
+
+## Análisis Exploratorio de Datos (EDA)
+
+Antes de desarrollar el sistema de recomendación, se realizó un análisis exploratorio de datos (EDA) para identificar relaciones, patrones y posibles outliers. Entre las visualizaciones generadas, se incluyó una nube de palabras para observar la frecuencia de palabras en los títulos, lo cual resultó útil para el sistema de recomendación.
+
+## Sistema de Recomendación
+
+El sistema de recomendación está basado en la similitud entre películas. Utiliza la matriz `sim.pkl` para calcular la similitud entre la película ingresada y el resto de las películas en el dataset. Las películas se ordenan según su score de similitud, y se devuelven las 5 películas con mayor puntuación en orden descendente.
+
+El sistema de recomendación está disponible como un endpoint adicional en la API, lo que permite a los usuarios obtener recomendaciones de películas similares basadas en una película específica.
 
 ## Dependencias
 
@@ -80,7 +90,6 @@ Este proyecto utiliza las siguientes librerías de Python:
 - **Scikit-learn**: Para el procesamiento de datos y cálculo de similitudes.
 - **Pandas**: Para la manipulación y análisis de datos.
 - **Uvicorn**: Para ejecutar el servidor ASGI compatible con FastAPI.
-- **Numpy**: Para transformar la matriz de similitud
 
 ## Créditos
 
@@ -89,4 +98,3 @@ Este proyecto fue desarrollado con fines educativos y de aprendizaje en el campo
 ## Licencia
 
 Este proyecto se distribuye bajo la licencia MIT. Consulta el archivo `LICENSE` para más detalles.
-
