@@ -1,12 +1,2 @@
 /venv/
-credits.csv
-bfg-1.14.0.jar
-/refs/
-HEAD.txt
-description.txt
-packed-refs
-config.txt
-description.txt
-HEAD.txt
-packed-refs.txt
-start.sh
+/Datasets/credits.csv
