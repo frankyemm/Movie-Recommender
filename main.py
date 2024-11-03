@@ -2,10 +2,10 @@ from fastapi import FastAPI
 from models2 import MovieSys
 
 # Configuración del archivo y enlace de Google Drive
-movies_df_path = 'test.csv'
-similarity_path = "sim.pkl"  # ID del archivo
+movies_df_path = 'H:/Sistema-de-Recomendacion-de-Peliculas/Datasets/movies_dataset.csv'
+similarity_path = "H:/Sistema-de-Recomendacion-de-Peliculas/Datasets/sim.pkl"  # ID del archivo
 
-# Inicializar MovieSys
+# Inicializar MovieSys Sistema-de-Recomendacion-de-Peliculas\main.py
 movie_sys = MovieSys(movies_df_path, similarity_path)
 
 # Crear instancia de FastAPI

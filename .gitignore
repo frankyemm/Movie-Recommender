@@ -5,3 +5,8 @@ bfg-1.14.0.jar
 HEAD.txt
 description.txt
 packed-refs
+config.txt
+description.txt
+HEAD.txt
+packed-refs.txt
+start.sh
