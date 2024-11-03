@@ -8,7 +8,7 @@ class MovieSys:
         self.weighted_similarity = pd.read_pickle(similarity_path)
         
         # Preprocesar columnas y mapas de meses y días
-        self.movies_df['release_date'] = pd.to_datetime(self.movies_df['release_date'], errors='coerce')
+        self.movies_df['release_date'] = pd.to_datetime(self.movies_df['release_date'], format='%Y-%m-%d', errors='coerce')
         self.month_map = {
             "enero": 1, "febrero": 2, "marzo": 3, "abril": 4,
             "mayo": 5, "junio": 6, "julio": 7, "agosto": 8,
