@@ -67,40 +67,18 @@ class MovieSys:
         # Convertimos el nombre exacto a una cadena, seleccionando el primer valor
         exact_actor_name = str(actor_names[0]) if actor_names.size > 0 else nombre_actor
         exact_actor_name = exact_actor_name.strip("'[]'")
-        actor_names = actor_movies['cast'].apply(
-            lambda x: next((name for name in x.split(',') if nombre_actor.lower() in name.lower()), nombre_actor)
-        ).unique()
-        
-        # Convertimos el nombre exacto a una cadena, seleccionando el primer valor
-        exact_actor_name = str(actor_names[0]) if actor_names.size > 0 else nombre_actor
-        exact_actor_name = exact_actor_name.strip("'[]'")
         total_return = round(actor_movies['return'].sum(), 3)
         movie_count = actor_movies.shape[0]
         average_return = round(total_return / movie_count if movie_count > 0 else 0, 3)
         return {"message": f"El actor {exact_actor_name} ha participado de {movie_count} cantidad de filmaciones, el mismo ha conseguido un retorno de {total_return} con un promedio de {average_return} por filmación"}
     
-        return {"message": f"El actor {exact_actor_name} ha participado de {movie_count} cantidad de filmaciones, el mismo ha conseguido un retorno de {total_return} con un promedio de {average_return} por filmación"}
-    
     def get_director(self, nombre_director: str):
-        # Filtramos las películas del director (sin distinguir mayúsculas y minúsculas)
         # Filtramos las películas del director (sin distinguir mayúsculas y minúsculas)
         director_movies = self.movies_df[self.movies_df['crew'].str.contains(nombre_director, case=False, na=False)]
         
         # Si no hay películas encontradas, retornamos un error
-        
-        # Si no hay películas encontradas, retornamos un error
         if director_movies.empty:
             return {"error": "Director no encontrado"}
-        
-        # Obtenemos el nombre exacto del director tal como está en el DataFrame
-        director_names = director_movies['crew'].apply(
-            lambda x: next((name for name in x.split(',') if nombre_director.lower() in name.lower()), nombre_director)
-        ).unique()
-        
-        # Convertimos el nombre exacto a una cadena, seleccionando el primer valor
-        exact_director_name = str(director_names[0]) if director_names.size > 0 else nombre_director
-        exact_director_name = exact_director_name.strip("'[]'")
-        # Recopilamos la información de las películas dirigidas por el director
         
         # Obtenemos el nombre exacto del director tal como está en el DataFrame
         director_names = director_movies['crew'].apply(
@@ -119,16 +97,11 @@ class MovieSys:
             # Convertimos la fecha a formato 'YYYY-MM-DD'
             formatted_date = str(release_date)
 
-            
-            # Convertimos la fecha a formato 'YYYY-MM-DD'
-            formatted_date = str(release_date)
-
             individual_return = movie['return']
             budget = movie['budget']
             revenue = movie['revenue']
             director_info.append({
                 "title": title,
-                "release_date": formatted_date[:10],
                 "release_date": formatted_date[:10],
                 "individual_return": individual_return,
                 "budget": budget,
@@ -137,17 +110,8 @@ class MovieSys:
         
         # Devolvemos el mensaje con el nombre exacto sin lista ni corchetes
         return {"message": f"El director {exact_director_name} ha dirigido las siguientes películas:", "movies": director_info}
-                })
-        
-        # Devolvemos el mensaje con el nombre exacto sin lista ni corchetes
-        return {"message": f"El director {exact_director_name} ha dirigido las siguientes películas:", "movies": director_info}
 
     def recomendacion(self, title, n_recommendations=5):
-        # Convertir el título ingresado a minúsculas
-        title_lower = title.lower()
-        
-        # Verificar si el título existe en la base de datos, ignorando mayúsculas/minúsculas
-        if title_lower not in self.movies_df['title'].str.lower().values:
         # Convertir el título ingresado a minúsculas
         title_lower = title.lower()
         
@@ -174,41 +138,10 @@ class MovieSys:
             }
         
         # Verificar si la película pertenece a una colección
-        
-        # Obtener el índice de la película y el título original para mantener el formato correcto
-        movie = self.movies_df[self.movies_df['title'].str.lower() == title_lower]
-        title = movie.iloc[0]['title']
-        movie_index = movie.index[0]
-        movie_genres = movie.iloc[0]['genres']  # Obtener los géneros de la película dada
-        
-        # Verificar si el índice está dentro de los límites de la matriz de similitud
-        if movie_index >= len(self.weighted_similarity):
-            # Si el índice está fuera de rango, usar similitud de géneros
-            similar_movies = self.movies_df[self.movies_df['genres'].apply(lambda x: any(genre in x for genre in movie_genres))]
-            similar_movies = similar_movies[similar_movies.index != movie_index]  # Excluir la película original
-            similar_movies = similar_movies.sort_values(by=['popularity', 'vote_count'], ascending=False).head(n_recommendations)
-            
-            return {
-                "message": "Recomendaciones basadas en géneros similares:",
-                "recommendations": similar_movies[['title', 'genres', 'vote_average', 'popularity']].to_dict(orient="records")
-            }
-        
-        # Verificar si la película pertenece a una colección
         collection_name = self.movies_df.loc[movie_index, 'belongs_to_collection']
         collection_movies = pd.DataFrame()
         
-        collection_movies = pd.DataFrame()
-        
         if pd.notna(collection_name):
-            # Si la película pertenece a una colección, obtener todas las películas de esa colección
-            collection_movies = self.movies_df[self.movies_df['belongs_to_collection'] == collection_name]
-            
-            # Remover la película original de la lista de la colección
-            collection_movies = collection_movies[collection_movies.index != movie_index]
-        
-        # Si ya tenemos suficientes recomendaciones en la colección, retornarlas directamente
-        if len(collection_movies) >= n_recommendations:
-            final_recommendations = collection_movies.head(n_recommendations)
             # Si la película pertenece a una colección, obtener todas las películas de esa colección
             collection_movies = self.movies_df[self.movies_df['belongs_to_collection'] == collection_name]
             
@@ -232,10 +165,6 @@ class MovieSys:
             # Concatenar las películas de la colección con las recomendaciones adicionales
             final_recommendations = pd.concat([collection_movies, additional_recommendations]).head(n_recommendations)
         
-        # Retornar las recomendaciones en el formato deseado
-        return {
-            "recommendations": final_recommendations[['title', 'genres', 'vote_average', 'popularity']].to_dict(orient="records")}
-
         # Retornar las recomendaciones en el formato deseado
         return {
             "recommendations": final_recommendations[['title', 'genres', 'vote_average', 'popularity']].to_dict(orient="records")}
