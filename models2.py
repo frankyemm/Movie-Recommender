@@ -1,5 +1,4 @@
 import pandas as pd
-import pickle
 
 class MovieSys:
     def __init__(self, movies_df_path: str, similarity_path: str):
