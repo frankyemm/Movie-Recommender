@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from models import MovieSys
+from models2 import MovieSys
 
 # Configuración del archivo y enlace de Google Drive
 movies_df_path = 'test.csv'
-similarity_path = "weighted_similarity.pkl"  # ID del archivo
+similarity_path = "sim.pkl"  # ID del archivo
 
 # Inicializar MovieSys
 movie_sys = MovieSys(movies_df_path, similarity_path)
