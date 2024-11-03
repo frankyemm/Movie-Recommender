@@ -113,6 +113,11 @@ class MovieSys:
         return {"message": f"El director {exact_director_name} ha dirigido las siguientes películas:", "movies": director_info}
 
     def recomendacion(self, title, n_recommendations=5):
+        
+        title_lower = title.lower()
+        movie = self.movies_df[self.movies_df['title'].str.lower() == title.lower()]
+        title = movie.iloc[0]['title']
+        
         if title not in self.movies_df['title'].values:
             return {"error": "El título no se encuentra en la base de datos."}
 
