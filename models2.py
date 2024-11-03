@@ -6,9 +6,11 @@ class MovieSys:
         # Cargar el DataFrame de películas
         self.movies_df = pd.read_csv(movies_df_path)
         self.weighted_similarity = pd.read_pickle(similarity_path)
-        
+        if 'release_date' in self.movies_df.columns:
+            self.movies_df['release_date'] = pd.to_datetime(self.movies_df['release_date'], format='%Y-%m-%d', errors='coerce')
+        else:
+            print("Warning: La columna 'release_date' no existe en el archivo CSV.")
         # Preprocesar columnas y mapas de meses y días
-        self.movies_df['release_date'] = pd.to_datetime(self.movies_df['release_date'], format='%Y-%m-%d', errors='coerce')
         self.month_map = {
             "enero": 1, "febrero": 2, "marzo": 3, "abril": 4,
             "mayo": 5, "junio": 6, "julio": 7, "agosto": 8,
@@ -18,6 +20,7 @@ class MovieSys:
             "lunes": 0, "martes": 1, "miércoles": 2, "jueves": 3,
             "viernes": 4, "sábado": 5, "domingo": 6
         }
+        
 
     def cantidad_filmaciones_mes(self, mes: str):
         month_num = self.month_map.get(mes.lower())
