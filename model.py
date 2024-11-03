@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import MinMaxScaler
 
 # Cargar el archivo CSV
-movies_df = pd.read_csv('test.csv')
+movies_df = pd.read_csv('Datasets/test.csv')
 
 # Normalizar 'vote_count' y 'popularity' para ponderación
 scaler = MinMaxScaler()
