@@ -39,6 +39,6 @@ def get_actor(nombre_actor: str):
 def get_director(nombre_director: str):
     return movie_sys.get_director(nombre_director)
 
-@app.get("/recomendacion/{title}")
-def recomendacion(title: str, n_recommendations: int = 5):
-    return movie_sys.recomendacion(title, n_recommendations)
+@app.get("/recomendacion/{titulo}")
+def recomendacion(titulo: str, n_recommendations: int = 5):
+    return movie_sys.recomendacion(titulo, n_recommendations)

@@ -111,9 +111,9 @@ class MovieSys:
         # Devolvemos el mensaje con el nombre exacto sin lista ni corchetes
         return {"message": f"El director {exact_director_name} ha dirigido las siguientes películas:", "movies": director_info}
 
-    def recomendacion(self, title, n_recommendations=5):
+    def recomendacion(self, titulo, n_recommendations=5):
         # Convertir el título ingresado a minúsculas
-        title_lower = title.lower()
+        title_lower = titulo.lower()
         
         # Verificar si el título existe en la base de datos, ignorando mayúsculas/minúsculas
         if title_lower not in self.movies_df['title'].str.lower().values:
@@ -121,7 +121,7 @@ class MovieSys:
         
         # Obtener el índice de la película y el título original para mantener el formato correcto
         movie = self.movies_df[self.movies_df['title'].str.lower() == title_lower]
-        title = movie.iloc[0]['title']
+        titulo = movie.iloc[0]['title']
         movie_index = movie.index[0]
         movie_genres = movie.iloc[0]['genres']  # Obtener los géneros de la película dada
         
