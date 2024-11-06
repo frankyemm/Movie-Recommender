@@ -98,6 +98,10 @@ Este proyecto utiliza las siguientes librerías de Python:
 - **Pandas**: Para la manipulación y análisis de datos.
 - **Uvicorn**: Para ejecutar el servidor ASGI compatible con FastAPI.
 
+## Video mostrando la funcionalidad del modelo
+
+[video mostrando la funcionalidad del modelo](https://youtu.be/RU_wGBRkvfM)
+
 ## Créditos
 
 Este proyecto fue desarrollado con fines educativos y de aprendizaje en el campo de ciencia de datos y machine learning aplicado a recomendaciones de contenido.
