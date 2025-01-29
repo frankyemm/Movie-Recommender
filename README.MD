@@ -88,11 +88,17 @@ Antes de desarrollar el sistema de recomendación, se realizó un análisis expl
 
 El sistema de recomendación está basado en la similitud entre películas. Utiliza la matriz `sim.pkl` para calcular la similitud entre la película ingresada y el resto de las películas en el dataset. Las películas se ordenan según su score de similitud, y se devuelven las 5 películas con mayor puntuación en orden descendente.
 
-El sistema de recomendación está disponible como un endpoint adicional en la API, lo que permite a los usuarios obtener recomendaciones de películas similares basadas en una película específica.
+El sistema de recomendación está disponible como un endpoint adicional en la API, lo que permite a los usuarios obtener recomendaciones de películas similares basadas en una película específica. Se utiliza Streamlit para hacer un deploy en local
+
+<p align="center">
+  <img src="src/recom.png" alt="Sistema de recomendación" width="800"/>
+</p>
+
 
 ## Dependencias
 
 Este proyecto utiliza las siguientes librerías de Python:
+- **Streamlit**: Para realizar un deploy en local
 - **FastAPI**: Para crear y manejar la API.
 - **Scikit-learn**: Para el procesamiento de datos y cálculo de similitudes.
 - **Pandas**: Para la manipulación y análisis de datos.
